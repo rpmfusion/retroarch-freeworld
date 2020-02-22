@@ -27,7 +27,7 @@
 
 Name:           %{appname}%{?p_suffix}
 Version:        1.8.4
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Cross-platform, sophisticated frontend for the libretro API. %{?sum_suffix}
 
 # CC-BY:        Assets
@@ -404,6 +404,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 
 
 %changelog
+* Sat Feb 22 2020 RPM Fusion Release Engineering <leigh123linux@googlemail.com> - 1.8.4-4
+- Rebuild for ffmpeg-4.3 git
+
 * Wed Jan 29 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.4-3
 - Spec file improvements
 - Thanks to Nicolas Chauvet <kwizart@gmail.com> for help with packaging and review
