@@ -2,37 +2,43 @@
 %bcond_without freeworld
 %bcond_with nonfree
 
-%global appname         retroarch
-%global uuid            org.libretro.RetroArch
+%global appname retroarch
+%global uuid    org.libretro.RetroArch
 
 # Freeworld package
 %if %{with freeworld}
-%global p_suffix        -freeworld
-%global sum_suffix      Freeworld version.
+%global p_suffix    -freeworld
+%global sum_suffix  Freeworld version.
 %else
-%global p_suffix        %{nil}
-%global sum_suffix      %{nil}
+%global p_suffix    %{nil}
+%global sum_suffix  %{nil}
 %endif
 
 # LTO
-%global optflags        %{optflags} -flto
-%global build_ldflags   %{build_ldflags} -flto
+%global optflags %{optflags} -flto
+%global build_ldflags %{build_ldflags} -flto
 
-%global short_url   https://github.com/libretro
+%global short_url https://github.com/libretro
 
 # Assets
-%global commit      c2bbf234195bbad91c827337a2fb2b5bc727407b
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global date        20191031
+%global commit1 e09cbd5a0c7c324cccc96c5804a5e03e5cb9b26c
+%global shortcommit1 %(c=%{commit1}; echo ${c:0:7})
+%global date 20200323
+
+# Joypad Autoconfig Files
+%global commit4 a908bd9f0cebe05ef491be67bf275623815947f4
+%global shortcommit4 %(c=%{commit4}; echo ${c:0:7})
+%global date4 20200326
 
 Name:           %{appname}%{?p_suffix}
-Version:        1.8.4
-Release:        4%{?dist}
+Version:        1.8.5
+Release:        2%{?dist}
 Summary:        Cross-platform, sophisticated frontend for the libretro API. %{?sum_suffix}
 
 # CC-BY:        Assets
 # CC0:          AppData manifest
 # MIT:          Libretro's core info
+#               Joypad Autoconfig Files
 #
 # Apache License (v2.0)
 # ------------------------------------
@@ -95,7 +101,7 @@ URL:            https://www.libretro.com/
 Source0:        %{short_url}/RetroArch/archive/v%{version}/%{appname}-%{version}.tar.gz
 
 # Assets
-Source1:        %{short_url}/%{appname}-assets/archive/%{commit}/%{appname}-assets-%{date}git%{shortcommit}.tar.gz
+Source1:        %{short_url}/%{appname}-assets/archive/%{commit1}/%{appname}-assets-%{date}git%{shortcommit1}.tar.gz
 
 # AppData manifest
 # * https://github.com/flathub/org.libretro.RetroArch/blob/master/org.libretro.RetroArch.appdata.xml
@@ -103,6 +109,9 @@ Source2:        https://raw.githubusercontent.com/flathub/%{uuid}/06be0a83a01514
 
 # Libretro's core info
 Source3:        %{short_url}/libretro-core-info/archive/v%{version}/libretro-core-info-%{version}.tar.gz
+
+# Joypad Autoconfig Files
+Source4:        %{short_url}/%{appname}-joypad-autoconfig/archive/%{commit4}/%{appname}-joypad-autoconfig-%{date4}git%{shortcommit4}.tar.gz
 
 # https://github.com/libretro/retroarch-assets/pull/334
 Patch0:         https://github.com/libretro/retroarch-assets/pull/334.patch#/add-executable-bit-to-script.patch
@@ -148,8 +157,10 @@ BuildRequires:  Cg
 BuildRequires:  libCg
 BuildRequires:  xv
 %endif
+
 Requires:       perl(Net::DBus)     %dnl Fedora package: perl-Net-DBus
 Requires:       perl(X11::Protocol) %dnl Fedora package: perl-X11-Protocol
+
 Recommends:     %{name}-assets = %{?epoch:%{epoch}:}%{version}-%{release}
 Recommends:     %{name}-filters%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 Recommends:     libretro-beetle-ngp%{?_isa}
@@ -159,6 +170,7 @@ Recommends:     libretro-beetle-wswan%{?_isa}
 Recommends:     libretro-bsnes-mercury%{?_isa}
 Recommends:     libretro-desmume2015%{?_isa}
 Recommends:     libretro-gambatte%{?_isa}
+Recommends:     libretro-gw%{?_isa}
 Recommends:     libretro-handy%{?_isa}
 Recommends:     libretro-mgba%{?_isa}
 Recommends:     libretro-nestopia%{?_isa}
@@ -169,6 +181,7 @@ Recommends:     libretro-stella2014%{?_isa}
 # Non-Free cores
 # * Dummy for future
 %endif
+
 Provides:       bundled(7zip) = 9.20
 Provides:       bundled(discord-rpc)
 Provides:       bundled(dr)
@@ -227,11 +240,11 @@ Audio and video filters for %{name}.
 %prep
 %setup -n RetroArch-%{version} -q
 %setup -n RetroArch-%{version} -q -D -T -a1
-pushd %{appname}-assets-%{commit}
+pushd %{appname}-assets-%{commit1}
 %patch0 -p1
 popd
 %setup -n RetroArch-%{version} -q -D -T -a3
-
+%setup -n RetroArch-%{version} -q -D -T -a4
 
 # Unbundling
 pushd deps
@@ -258,11 +271,13 @@ sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets-fr
     -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video-freeworld/|g'  \
     -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio-freeworld/|g'  \
     -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info-freeworld/|g'       \
+    -e 's|# joypad_autoconfig_dir =|joypad_autoconfig_dir = %{_datadir}/libretro/autoconfig-freeworld/|g' \
 %else
-sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets/|g'           \
-    -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video/|g'    \
-    -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio/|g'    \
-    -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info/|g'         \
+sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets/|g'               \
+    -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video/|g'        \
+    -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio/|g'        \
+    -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info/|g'             \
+    -e 's|# joypad_autoconfig_dir =|joypad_autoconfig_dir = %{_datadir}/libretro/autoconfig/|g' \
 %endif
     -i retroarch.cfg
 
@@ -292,8 +307,8 @@ sed -e 's|retroarch.cfg|%{name}.cfg|g'  \
 %make_build
 
 # Assets
-%make_build -C %{appname}-assets-%{commit} \
-    GIT_VERSION=%{shortcommit}
+%make_build -C %{appname}-assets-%{commit1} \
+    GIT_VERSION=%{shortcommit1}
 
 # Audio filters
 %make_build -C libretro-common/audio/dsp_filters
@@ -304,6 +319,9 @@ sed -e 's|retroarch.cfg|%{name}.cfg|g'  \
 # Libretro's core info
 %make_build -C libretro-core-info-%{version}
 
+# Joypad Autoconfig Files
+%make_build -C %{appname}-joypad-autoconfig-%{commit4}
+
 
 %install
 %make_install
@@ -311,7 +329,7 @@ rm  %{buildroot}%{_docdir}/%{appname}/COPYING \
     %{buildroot}%{_docdir}/%{appname}/README.md
 
 # Assets
-%make_install -C %{appname}-assets-%{commit}
+%make_install -C %{appname}-assets-%{commit1}
 %if %{with freeworld}
 mv  %{buildroot}%{_datadir}/libretro/assets/ \
     %{buildroot}%{_datadir}/libretro/assets-freeworld/
@@ -342,6 +360,13 @@ rm  %{buildroot}%{_datadir}/libretro/assets%{?p_suffix}/pkg/osd-font.ttf \
 
 # AppData manifest
 install -m 0644 -Dp %{SOURCE2} %{buildroot}%{_metainfodir}/%{uuid}.appdata.xml
+
+# Joypad Autoconfig Files
+%make_install -C %{appname}-joypad-autoconfig-%{commit4}
+%if %{with freeworld}
+mv  %{buildroot}%{_datadir}/libretro/autoconfig/ \
+    %{buildroot}%{_datadir}/libretro/autoconfig-freeworld/
+%endif
 
 # Rename desktop file to UUID for compatibility
 mv  %{buildroot}%{_datadir}/applications/%{appname}.desktop \
@@ -380,6 +405,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 %doc README.md README-exynos.md README-OMAP.md README-mali_fbdev_r4p0.md CHANGES.md CONTRIBUTING.md
 %{_bindir}/%{appname}*
 %{_datadir}/applications/*.desktop
+%{_datadir}/libretro/autoconfig%{?p_suffix}/
 %{_datadir}/libretro/info%{?p_suffix}/
 %{_datadir}/pixmaps/*.svg
 %{_mandir}/man6/*
@@ -390,6 +416,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 # one will be saved in home dir
 %config %{_sysconfdir}/%{name}.cfg
 
+
 %files assets
 # Incorrect-fsf-address
 # * https://github.com/libretro/retroarch-assets/issues/335
@@ -398,14 +425,25 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 %{_datadir}/libretro/assets%{?p_suffix}/
 %dir %{_datadir}/libretro/
 
+
 %files filters
 %{_libdir}/%{appname}/filters%{?p_suffix}/
 %dir %{_libdir}/%{appname}/
 
 
 %changelog
+* Thu Mar 26 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.5-2
+- Add Joypad Autoconfig Files
+
+* Mon Mar 23 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.5-1
+- Update to 1.8.5
+- Add new libretro core
+
 * Sat Feb 22 2020 RPM Fusion Release Engineering <leigh123linux@googlemail.com> - 1.8.4-4
 - Rebuild for ffmpeg-4.3 git
+
+* Thu Jan 30 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.8.4-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
 * Wed Jan 29 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.4-3
 - Spec file improvements
