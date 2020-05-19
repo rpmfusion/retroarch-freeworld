@@ -286,9 +286,9 @@ sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets-fr
     -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio-freeworld/|g'          \
     -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info-freeworld/|g'               \
     -e 's|# joypad_autoconfig_dir =|joypad_autoconfig_dir = %{_datadir}/libretro/autoconfig-freeworld/|g'   \
-    -e 's|# content_database_path =|content_database_path = %{_datadir}/libretro/database/rdb-freeworld/|g' \
-    -e 's|# cheat_database_path =|cheat_database_path = %{_datadir}/libretro/database/cht-freeworld/|g'     \
-    -e 's|# cursor_directory =|cursor_directory = %{_datadir}/libretro/database/cursors-freeworld/|g'       \
+    -e 's|# content_database_path =|content_database_path = %{_datadir}/libretro/database-freeworld/rdb/|g' \
+    -e 's|# cheat_database_path =|cheat_database_path = %{_datadir}/libretro/database-freeworld/cht/|g'     \
+    -e 's|# cursor_directory =|cursor_directory = %{_datadir}/libretro/database-freeworld/cursors/|g'       \
 %else
 sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets/|g'                   \
     -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video/|g'            \
@@ -459,9 +459,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 
 
 %files database
-%{_datadir}/libretro/database/cht%{?p_suffix}/
-%{_datadir}/libretro/database/cursors%{?p_suffix}/
-%{_datadir}/libretro/database/rdb%{?p_suffix}/
+%{_datadir}/libretro/database%{?p_suffix}/cht/
+%{_datadir}/libretro/database%{?p_suffix}/cursors/
+%{_datadir}/libretro/database%{?p_suffix}/rdb/
 
 
 %changelog
