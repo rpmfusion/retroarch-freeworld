@@ -14,10 +14,6 @@
 %global sum_suffix  %{nil}
 %endif
 
-# LTO
-%global optflags %{optflags} -flto
-%global build_ldflags %{build_ldflags} -flto
-
 %global short_url https://github.com/libretro
 
 # Assets
@@ -26,13 +22,13 @@
 %global date 20200507
 
 # Joypad Autoconfig Files
-%global commit4 fd99334cffbaa844a9bb8fa6192e486bfa956916
+%global commit4 28180c1369097b86c310f89c9f7b791e3451e579
 %global shortcommit4 %(c=%{commit4}; echo ${c:0:7})
-%global date4 20200507
+%global date4 20200514
 
 Name:           %{appname}%{?p_suffix}
-Version:        1.8.6
-Release:        1%{?dist}
+Version:        1.8.7
+Release:        2%{?dist}
 Summary:        Cross-platform, sophisticated frontend for the libretro API. %{?sum_suffix}
 
 # CC-BY:        Assets
@@ -113,6 +109,9 @@ Source3:        %{short_url}/libretro-core-info/archive/v%{version}/libretro-cor
 # Joypad Autoconfig Files
 Source4:        %{short_url}/%{appname}-joypad-autoconfig/archive/%{commit4}/%{appname}-joypad-autoconfig-%{date4}git%{shortcommit4}.tar.gz
 
+# Database files (cheatcode, content data, cursors)
+Source5:        %{short_url}/libretro-database/archive/v%{version}/libretro-database-%{version}.tar.gz
+
 # https://github.com/libretro/retroarch-assets/pull/334
 Patch0:         https://github.com/libretro/retroarch-assets/pull/334.patch#/add-executable-bit-to-script.patch
 
@@ -162,6 +161,7 @@ Requires:       perl(Net::DBus)     %dnl Fedora package: perl-Net-DBus
 Requires:       perl(X11::Protocol) %dnl Fedora package: perl-X11-Protocol
 
 Recommends:     %{name}-assets = %{?epoch:%{epoch}:}%{version}-%{release}
+Recommends:     %{name}-database%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 Recommends:     %{name}-filters%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 Recommends:     libretro-beetle-ngp%{?_isa}
 Recommends:     libretro-beetle-pce-fast%{?_isa}
@@ -237,6 +237,19 @@ Requires:       %{name}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 Audio and video filters for %{name}.
 
 
+# Database package
+%package        database
+Summary:        Database files (cheatcode, content data, cursors) for %{name}
+BuildArch:      noarch
+
+Requires:       %{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description    database
+RetroArch incoporates a ROM scanning system to automatically produce playlists.
+Each ROM that is scanned by the playlist generator is checked against a
+database of ROMs that are known to be good copies.
+
+
 %prep
 %setup -n RetroArch-%{version} -q
 %setup -n RetroArch-%{version} -q -D -T -a1
@@ -245,6 +258,7 @@ pushd %{appname}-assets-%{commit1}
 popd
 %setup -n RetroArch-%{version} -q -D -T -a3
 %setup -n RetroArch-%{version} -q -D -T -a4
+%setup -n RetroArch-%{version} -q -D -T -a5
 
 # Unbundling
 pushd deps
@@ -262,22 +276,28 @@ popd
 # * Not part of the 'mbedtls' upstream source
 find deps/mbedtls/ ! -name 'cacert.h' -type f -exec rm -f {} +
 
-# Use system assets, libretro cores, libretro's core info and audio/video
-# filters
+# Use system assets, libretro cores, libretro's core info and audio/video,
+# filters, database files (cheatcode, content data, cursors)
 sed -e 's|# libretro_directory =|libretro_directory = %{_libdir}/libretro/|g' \
     -i retroarch.cfg
 %if %{with freeworld}
-sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets-freeworld/|g'         \
-    -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video-freeworld/|g'  \
-    -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio-freeworld/|g'  \
-    -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info-freeworld/|g'       \
-    -e 's|# joypad_autoconfig_dir =|joypad_autoconfig_dir = %{_datadir}/libretro/autoconfig-freeworld/|g' \
+sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets-freeworld/|g'                 \
+    -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video-freeworld/|g'          \
+    -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio-freeworld/|g'          \
+    -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info-freeworld/|g'               \
+    -e 's|# joypad_autoconfig_dir =|joypad_autoconfig_dir = %{_datadir}/libretro/autoconfig-freeworld/|g'   \
+    -e 's|# content_database_path =|content_database_path = %{_datadir}/libretro/database/rdb-freeworld/|g' \
+    -e 's|# cheat_database_path =|cheat_database_path = %{_datadir}/libretro/database/cht-freeworld/|g'     \
+    -e 's|# cursor_directory =|cursor_directory = %{_datadir}/libretro/database/cursors-freeworld/|g'       \
 %else
-sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets/|g'               \
-    -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video/|g'        \
-    -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio/|g'        \
-    -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info/|g'             \
-    -e 's|# joypad_autoconfig_dir =|joypad_autoconfig_dir = %{_datadir}/libretro/autoconfig/|g' \
+sed -e 's|# assets_directory =|assets_directory = %{_datadir}/libretro/assets/|g'                   \
+    -e 's|# video_filter_dir =|video_filter_dir = %{_libdir}/retroarch/filters/video/|g'            \
+    -e 's|# audio_filter_dir =|audio_filter_dir = %{_libdir}/retroarch/filters/audio/|g'            \
+    -e 's|# libretro_info_path =|libretro_info_path = %{_datadir}/libretro/info/|g'                 \
+    -e 's|# joypad_autoconfig_dir =|joypad_autoconfig_dir = %{_datadir}/libretro/autoconfig/|g'     \
+    -e 's|# content_database_path =|content_database_path = %{_datadir}/libretro/database/rdb/|g'   \
+    -e 's|# cheat_database_path =|cheat_database_path = %{_datadir}/libretro/database/cht/|g'       \
+    -e 's|# cursor_directory =|cursor_directory = %{_datadir}/libretro/database/cursors/|g'         \
 %endif
     -i retroarch.cfg
 
@@ -321,6 +341,9 @@ sed -e 's|retroarch.cfg|%{name}.cfg|g'  \
 
 # Joypad Autoconfig Files
 %make_build -C %{appname}-joypad-autoconfig-%{commit4}
+
+# Database files (cheatcode, content data, cursors)
+%make_build -C libretro-database-%{version}
 
 
 %install
@@ -367,6 +390,10 @@ install -m 0644 -Dp %{SOURCE2} %{buildroot}%{_metainfodir}/%{uuid}.appdata.xml
 mv  %{buildroot}%{_datadir}/libretro/autoconfig/ \
     %{buildroot}%{_datadir}/libretro/autoconfig-freeworld/
 %endif
+
+# Database files (cheatcode, content data, cursors)
+%make_install -C libretro-database-%{version}      \
+    INSTALLDIR=%{_datadir}/libretro/database%{?p_suffix}
 
 # Rename desktop file to UUID for compatibility
 mv  %{buildroot}%{_datadir}/applications/%{appname}.desktop \
@@ -431,7 +458,20 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 %dir %{_libdir}/%{appname}/
 
 
+%files database
+%{_datadir}/libretro/database/cht%{?p_suffix}/
+%{_datadir}/libretro/database/cursors%{?p_suffix}/
+%{_datadir}/libretro/database/rdb%{?p_suffix}/
+
+
 %changelog
+* Tue May 19 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.7-2
+- Add Database files (cheatcode, content data, cursors) | Fix: RH#1822743
+- Disable LTO
+
+* Mon May 18 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.7-1
+- Update to 1.8.7
+
 * Thu May 07 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.6-1
 - Update to 1.8.6
 
