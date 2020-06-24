@@ -17,17 +17,19 @@
 %global short_url https://github.com/libretro
 
 # Assets
-%global commit1 4ebe9abfe80dd58489d7ed0922cd4789c1999f07
+# * https://github.com/libretro/retroarch-assets
+%global commit1 0ac74a9b2503f5a19e0a9ab1985e5fab8c64993d
 %global shortcommit1 %(c=%{commit1}; echo ${c:0:7})
-%global date 20200524
+%global date 20200617
 
 # Joypad Autoconfig Files
-%global commit4 7d6c1d42c6bc87aaf9c17870df210d7cbd45e1e2
+# * https://github.com/libretro/retroarch-joypad-autoconfig
+%global commit4 0327efe4502203d5a357cf78135d8ab945ae8ad0
 %global shortcommit4 %(c=%{commit4}; echo ${c:0:7})
-%global date4 20200524
+%global date4 20200618
 
 Name:           %{appname}%{?p_suffix}
-Version:        1.8.8
+Version:        1.8.9
 Release:        1%{?dist}
 Summary:        Cross-platform, sophisticated frontend for the libretro API. %{?sum_suffix}
 
@@ -101,7 +103,7 @@ Source1:        %{short_url}/%{appname}-assets/archive/%{commit1}/%{appname}-ass
 
 # AppData manifest
 # * https://github.com/flathub/org.libretro.RetroArch/blob/master/org.libretro.RetroArch.appdata.xml
-Source2:        https://raw.githubusercontent.com/flathub/%{uuid}/cadddc6bff0a0b5f788c6c896ee7b7f309b5ae34/%{uuid}.appdata.xml
+Source2:        https://raw.githubusercontent.com/flathub/%{uuid}/a10c8384ac6e24749f70139c75174ec06ed17ad4/%{uuid}.appdata.xml
 
 # Libretro's core info
 Source3:        %{short_url}/libretro-core-info/archive/v%{version}/libretro-core-info-%{version}.tar.gz
@@ -465,6 +467,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 
 
 %changelog
+* Sat Jun 20 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.9-1
+- Update to 1.8.9
+
 * Wed May 27 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.8-1
 - Update to 1.8.8
 
