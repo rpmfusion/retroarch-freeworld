@@ -18,18 +18,18 @@
 
 # Assets
 # * https://github.com/libretro/retroarch-assets
-%global commit1 0ac74a9b2503f5a19e0a9ab1985e5fab8c64993d
+%global commit1 7a9a84956099404e26e2010ffd913b247e1e2dd4
 %global shortcommit1 %(c=%{commit1}; echo ${c:0:7})
-%global date 20200617
+%global date 20200808
 
 # Joypad Autoconfig Files
 # * https://github.com/libretro/retroarch-joypad-autoconfig
-%global commit4 0327efe4502203d5a357cf78135d8ab945ae8ad0
+%global commit4 c13eb4653f733f9d2d5d52929f0e87182c27bd61
 %global shortcommit4 %(c=%{commit4}; echo ${c:0:7})
-%global date4 20200618
+%global date4 20200730
 
 Name:           %{appname}%{?p_suffix}
-Version:        1.8.9
+Version:        1.9.0
 Release:        1%{?dist}
 Summary:        Cross-platform, sophisticated frontend for the libretro API. %{?sum_suffix}
 
@@ -387,7 +387,8 @@ rm  %{buildroot}%{_datadir}/libretro/assets%{?p_suffix}/pkg/osd-font.ttf \
 install -m 0644 -Dp %{SOURCE2} %{buildroot}%{_metainfodir}/%{uuid}.appdata.xml
 
 # Joypad Autoconfig Files
-%make_install -C %{appname}-joypad-autoconfig-%{commit4}
+%make_install -C %{appname}-joypad-autoconfig-%{commit4} \
+    DOC_DIR=%{_datadir}/libretro/autoconfig/doc
 %if %{with freeworld}
 mv  %{buildroot}%{_datadir}/libretro/autoconfig/ \
     %{buildroot}%{_datadir}/libretro/autoconfig-freeworld/
@@ -467,6 +468,12 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 
 
 %changelog
+* Sat Aug 08 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.9.0-1
+- Update to 1.9.0
+
+* Wed Jul 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.8.9-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Sat Jun 20 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.8.9-1
 - Update to 1.8.9
 
