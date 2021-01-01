@@ -30,7 +30,7 @@
 
 Name:           %{appname}%{?p_suffix}
 Version:        1.9.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Cross-platform, sophisticated frontend for the libretro API. %{?sum_suffix}
 
 # CC-BY:        Assets
@@ -468,6 +468,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 
 
 %changelog
+* Fri Jan  1 2021 Leigh Scott <leigh123linux@gmail.com> - 1.9.0-2
+- Rebuilt for new ffmpeg snapshot
+
 * Sat Aug 08 2020 Artem Polishchuk <ego.cordatus@gmail.com> - 1.9.0-1
 - Update to 1.9.0
 
