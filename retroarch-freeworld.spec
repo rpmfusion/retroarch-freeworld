@@ -1,3 +1,4 @@
+%global _lto_cflags %{nil}
 # Free/Freeworld/Non-Free version
 %bcond_without freeworld
 %bcond_with nonfree
