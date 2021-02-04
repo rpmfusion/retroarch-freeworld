@@ -31,7 +31,7 @@
 
 Name:           %{appname}%{?p_suffix}
 Version:        1.9.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Cross-platform, sophisticated frontend for the libretro API. %{?sum_suffix}
 
 # CC-BY:        Assets
@@ -469,6 +469,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 
 
 %changelog
+* Thu Feb 04 2021 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1.9.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
+
 * Fri Jan  1 2021 Leigh Scott <leigh123linux@gmail.com> - 1.9.0-2
 - Rebuilt for new ffmpeg snapshot
 
